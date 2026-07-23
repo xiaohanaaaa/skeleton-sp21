@@ -3,13 +3,13 @@ import java.util.Properties;
 public class GetEnvironmentVariables {
 
     //  Fill in the path to your sp21-s*** folder between the quotes
-    public static String REPO_DIR = "";
+    public static String REPO_DIR = "D:\\cs\\skeleton-sp21";
 
     //  Fill in the path to your snaps-sp21-s*** folder between the quotes
-    public static String SNAPS_DIR = "";
+    public static String SNAPS_DIR = "D:\\cs\\snaps-sp21";
 
     // Fill in the type of your shell by running 'echo $0` in your terminal. It should be zsh or bash.
-    public static String SHELL = "";
+    public static String SHELL = "bash";
 
     public static void main(String[] args) {
 
@@ -37,6 +37,10 @@ public class GetEnvironmentVariables {
                 source = macSource;
             }
         } else if (yourOS.contains("nux")) {
+            repo = linux.replace("{variable}", "REPO_DIR").replace("{value}", REPO_DIR);
+            snaps = linux.replace("{variable}", "SNAPS_DIR").replace("{value}", SNAPS_DIR);
+            source = linuxSource;
+        } else if (yourOS.contains("win")) {
             repo = linux.replace("{variable}", "REPO_DIR").replace("{value}", REPO_DIR);
             snaps = linux.replace("{variable}", "SNAPS_DIR").replace("{value}", SNAPS_DIR);
             source = linuxSource;
