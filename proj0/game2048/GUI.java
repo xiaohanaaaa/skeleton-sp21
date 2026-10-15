@@ -57,7 +57,28 @@ class GUI extends TopLevel implements Observer {
     /** Respond to the user pressing key E by queuing the key on our
      *  queue of pending keys.*/
     public void keyPressed(String unused, KeyEvent e) {
-        _pendingKeys.offer(e.getKeyText(e.getKeyCode()));
+        String key = keyName(e.getKeyCode());
+        if (key != null) {
+            _pendingKeys.offer(key);
+        }
+    }
+
+    /** Return the canonical name ("Up", "Down", "Left", "Right") for key
+     *  code CODE, mapping arrow keys and WASD alike. Returns null for any
+     *  other key. */
+    private static String keyName(int code) {
+        switch (code) {
+            case KeyEvent.VK_UP: case KeyEvent.VK_W:
+                return "Up";
+            case KeyEvent.VK_DOWN: case KeyEvent.VK_S:
+                return "Down";
+            case KeyEvent.VK_LEFT: case KeyEvent.VK_A:
+                return "Left";
+            case KeyEvent.VK_RIGHT: case KeyEvent.VK_D:
+                return "Right";
+            default:
+                return null;
+        }
     }
 
     /** Return the next pending event, waiting for it as necessary.

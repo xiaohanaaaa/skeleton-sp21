@@ -1,6 +1,11 @@
 package hashmap;
 
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.NoSuchElementException;
+import java.util.Set;
 
 /**
  *  A hash table-backed Map implementation. Provides amortized constant time
@@ -27,12 +32,21 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
 
     /* Instance Variables */
     private Collection<Node>[] buckets;
-    // You should probably define some more!
+    private int size;
+    private int initialSize;
+    private double maxLoad;
+
+    private static final int DEFAULT_INITIAL_SIZE = 16;
+    private static final double DEFAULT_MAX_LOAD = 0.75;
 
     /** Constructors */
-    public MyHashMap() { }
+    public MyHashMap() {
+        this(DEFAULT_INITIAL_SIZE, DEFAULT_MAX_LOAD);
+    }
 
-    public MyHashMap(int initialSize) { }
+    public MyHashMap(int initialSize) {
+        this(initialSize, DEFAULT_MAX_LOAD);
+    }
 
     /**
      * MyHashMap constructor that creates a backing array of initialSize.
@@ -41,13 +55,18 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
      * @param initialSize initial size of backing array
      * @param maxLoad maximum load factor
      */
-    public MyHashMap(int initialSize, double maxLoad) { }
+    public MyHashMap(int initialSize, double maxLoad) {
+        this.initialSize = initialSize;
+        this.maxLoad = maxLoad;
+        this.size = 0;
+        this.buckets = createTable(initialSize);
+    }
 
     /**
      * Returns a new node to be placed in a hash table bucket
      */
     private Node createNode(K key, V value) {
-        return null;
+        return new Node(key, value);
     }
 
     /**
@@ -69,7 +88,7 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
      * OWN BUCKET DATA STRUCTURES WITH THE NEW OPERATOR!
      */
     protected Collection<Node> createBucket() {
-        return null;
+        return new LinkedList<>();
     }
 
     /**
@@ -81,11 +100,162 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
      *
      * @param tableSize the size of the table to create
      */
+    @SuppressWarnings("unchecked")
     private Collection<Node>[] createTable(int tableSize) {
+        Collection<Node>[] table = (Collection<Node>[]) new Collection[tableSize];
+        for (int i = 0; i < tableSize; i++) {
+            table[i] = createBucket();
+        }
+        return table;
+    }
+
+    /** Returns the bucket index for key in the current table. */
+    private int hash(K key) {
+        return Math.floorMod(key.hashCode(), buckets.length);
+    }
+
+    /** Resizes the backing table to newCapacity and rehashes all nodes. */
+    private void resize(int newCapacity) {
+        Collection<Node>[] oldBuckets = buckets;
+        buckets = createTable(newCapacity);
+        for (Collection<Node> bucket : oldBuckets) {
+            for (Node node : bucket) {
+                buckets[hash(node.key)].add(node);
+            }
+        }
+    }
+
+    @Override
+    public void clear() {
+        buckets = createTable(initialSize);
+        size = 0;
+    }
+
+    @Override
+    public boolean containsKey(K key) {
+        for (Node node : buckets[hash(key)]) {
+            if (node.key.equals(key)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public V get(K key) {
+        for (Node node : buckets[hash(key)]) {
+            if (node.key.equals(key)) {
+                return node.value;
+            }
+        }
         return null;
     }
 
-    // TODO: Implement the methods of the Map61B Interface below
-    // Your code won't compile until you do so!
+    @Override
+    public int size() {
+        return size;
+    }
 
+    @Override
+    public void put(K key, V value) {
+        Collection<Node> bucket = buckets[hash(key)];
+        for (Node node : bucket) {
+            if (node.key.equals(key)) {
+                node.value = value;
+                return;
+            }
+        }
+        bucket.add(createNode(key, value));
+        size++;
+        if ((double) size / buckets.length > maxLoad) {
+            resize(buckets.length * 2);
+        }
+    }
+
+    @Override
+    public Set<K> keySet() {
+        Set<K> keys = new HashSet<>();
+        for (Collection<Node> bucket : buckets) {
+            for (Node node : bucket) {
+                keys.add(node.key);
+            }
+        }
+        return keys;
+    }
+
+    @Override
+    public V remove(K key) {
+        Collection<Node> bucket = buckets[hash(key)];
+        Iterator<Node> iter = bucket.iterator();
+        while (iter.hasNext()) {
+            Node node = iter.next();
+            if (node.key.equals(key)) {
+                iter.remove();
+                size--;
+                return node.value;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public V remove(K key, V value) {
+        Collection<Node> bucket = buckets[hash(key)];
+        Iterator<Node> iter = bucket.iterator();
+        while (iter.hasNext()) {
+            Node node = iter.next();
+            if (node.key.equals(key) && node.value.equals(value)) {
+                iter.remove();
+                size--;
+                return node.value;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public Iterator<K> iterator() {
+        return new KeyIterator();
+    }
+
+    private class KeyIterator implements Iterator<K> {
+        private Iterator<Node> bucketIter;
+        private int bucketIndex;
+        private K next;
+
+        KeyIterator() {
+            bucketIndex = 0;
+            bucketIter = buckets[0].iterator();
+            advance();
+        }
+
+        private void advance() {
+            next = null;
+            while (next == null) {
+                if (bucketIter.hasNext()) {
+                    next = bucketIter.next().key;
+                } else if (bucketIndex + 1 < buckets.length) {
+                    bucketIndex++;
+                    bucketIter = buckets[bucketIndex].iterator();
+                } else {
+                    return;
+                }
+            }
+        }
+
+        @Override
+        public boolean hasNext() {
+            return next != null;
+        }
+
+        @Override
+        public K next() {
+            if (next == null) {
+                throw new NoSuchElementException();
+            }
+            K result = next;
+            advance();
+            return result;
+        }
+    }
 }
