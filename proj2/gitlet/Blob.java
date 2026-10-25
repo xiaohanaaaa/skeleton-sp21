@@ -17,18 +17,17 @@ public class Blob implements Dumpable {
 
     /** Creates a Blob holding CONTENTS. / 创建一个持有 CONTENTS 的 Blob。 */
     public Blob(byte[] contents) {
-        // TODO
+        this.contents = contents;
     }
 
     /** Returns the raw byte contents of this blob.
      *  返回该 blob 的原始字节内容。 */
     public byte[] getContents() {
-        return null; // TODO
+        return contents;
     }
 
     @Override
     public void dump() {
-        // TODO: print useful information about this blob
-        // TODO: 打印该 blob 的有用信息
+        System.out.printf("blob length: %d bytes%n", contents.length);
     }
 }

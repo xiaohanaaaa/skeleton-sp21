@@ -42,46 +42,53 @@ public class Commit implements Serializable, Dumpable {
      *  用给定的元数据和文件快照创建一个 Commit。 */
     public Commit(String message, Date timestamp,
                   String parent, String parent2, TreeMap<String, String> blobs) {
-        // TODO
+        this.message = message;
+        this.timestamp = timestamp;
+        this.parent = parent;
+        this.parent2 = parent2;
+        this.blobs = blobs;
     }
 
     /** Returns the message of this commit. / 返回该 commit 的提交信息。 */
     public String getMessage() {
-        return null; // TODO
+        return message;
     }
 
     /** Returns the timestamp of this commit. / 返回该 commit 的时间戳。 */
     public Date getTimestamp() {
-        return null; // TODO
+        return timestamp;
     }
 
     /** Returns the first parent's SHA-1 id, or null for the initial commit.
      *  返回第一个父提交的 SHA-1；初始 commit 返回 null。 */
     public String getParent() {
-        return null; // TODO
+        return parent;
     }
 
     /** Returns the second parent's SHA-1 id, or null if this is not a merge.
      *  返回第二个父提交的 SHA-1；非 merge commit 返回 null。 */
     public String getParent2() {
-        return null; // TODO
+        return parent2;
     }
 
     /** Returns the (file name -> blob SHA-1) mapping of this commit.
      *  返回该 commit 的（文件名 -> blob SHA-1）映射。 */
     public TreeMap<String, String> getBlobs() {
-        return null; // TODO
+        return blobs;
     }
 
     /** Returns true if this commit has two parents (i.e. is a merge commit).
      *  若该 commit 有两个父提交（即 merge commit）则返回 true。 */
     public boolean isMerge() {
-        return false; // TODO
+        return parent2 != null;
     }
 
     @Override
     public void dump() {
-        // TODO: print useful information about this commit
-        // TODO: 打印该 commit 的有用信息
+        System.out.printf("message: %s%n", message);
+        System.out.printf("timestamp: %s%n", timestamp);
+        System.out.printf("parent: %s%n", parent);
+        System.out.printf("parent2: %s%n", parent2);
+        System.out.printf("blobs: %s%n", blobs);
     }
 }

@@ -1,6 +1,7 @@
 package gitlet;
 
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -27,72 +28,76 @@ public class StagingArea implements Serializable {
 
     /** Creates an empty staging area. / 创建一个空暂存区。 */
     public StagingArea() {
-        // TODO
+        additions = new TreeMap<>();
+        removals = new TreeSet<>();
     }
 
     /** Returns true if nothing is staged for addition or removal.
      *  若待添加与待删除都为空则返回 true。 */
     public boolean isEmpty() {
-        return false; // TODO
+        return additions.isEmpty() && removals.isEmpty();
     }
 
     /** Returns true if NAME is staged for addition.
      *  若 NAME 在待添加中则返回 true。 */
     public boolean hasAddition(String name) {
-        return false; // TODO
+        return additions.containsKey(name);
     }
 
     /** Returns the blob SHA-1 staged for addition under NAME, or null.
      *  返回 NAME 在待添加中对应的 blob SHA-1，没有则返回 null。 */
     public String getAdditionSha(String name) {
-        return null; // TODO
+        return additions.get(name);
     }
 
     /** Returns a read-only view of the names staged for addition.
      *  返回待添加文件名的只读视图。 */
     public Set<String> additionNames() {
-        return null; // TODO
+        return Collections.unmodifiableSet(additions.keySet());
     }
 
     /** Returns true if NAME is staged for removal.
      *  若 NAME 在待删除中则返回 true。 */
     public boolean hasRemoval(String name) {
-        return false; // TODO
+        return removals.contains(name);
     }
 
     /** Returns a read-only view of the names staged for removal.
      *  返回待删除文件名的只读视图。 */
     public Set<String> removalNames() {
-        return null; // TODO
+        return Collections.unmodifiableSet(removals);
     }
 
     /** Stages NAME for addition with the given blob SHA-1, cancelling any
      *  pending removal of the same name.
      *  以给定的 blob SHA-1 将 NAME 标记为待添加，并取消同名文件的待删除标记。 */
     public void stage(String name, String sha) {
-        // TODO
+        additions.put(name, sha);
+        removals.remove(name);
     }
 
     /** Removes NAME from the addition stage, if present.
      *  若存在，则将 NAME 从待添加中移除。 */
     public void unstageAddition(String name) {
-        // TODO
+        additions.remove(name);
     }
 
     /** Stages NAME for removal, cancelling any pending addition of the same name.
      *  将 NAME 标记为待删除，并取消同名文件的待添加标记。 */
     public void stageRemoval(String name) {
-        // TODO
+        removals.add(name);
+        additions.remove(name);
     }
 
     /** Removes NAME from the removal stage, if present.
      *  若存在，则将 NAME 从待删除中移除。 */
     public void unstageRemoval(String name) {
-        // TODO
+        removals.remove(name);
     }
 
     /** Clears the entire staging area. / 清空整个暂存区。 */
     public void clear() {
-        // TODO
+        additions.clear();
+        removals.clear();
     }
 }
